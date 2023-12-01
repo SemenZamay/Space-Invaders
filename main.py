@@ -17,6 +17,7 @@ RED_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_red.png"))
 GREEN_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_green.png"))
 BLUE_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png"))
 YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
+MAX_BULLETS = 5
 
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))
 
@@ -64,7 +65,7 @@ class Ship:
             if laser.off_screen(HEIGHT):
                 self.lasers.remove(laser)
             elif laser.collision(obj):
-                self.health -= 10
+                obj.health -= 10
                 self.lasers.remove(laser)
 
 
@@ -153,11 +154,12 @@ def main():
     lost_font = pygame.font.SysFont("comicsans", 60)
 
     enemies = []
-    wave_length = 5
+    wave_length = 3
     enemy_vel = 1
     laser_vel = 5
+    yellow_laser = []
 
-    player_vel = 5
+    player_vel = 6
 
     player = Player(300, 630)
 
@@ -195,15 +197,15 @@ def main():
 
         if lost:
             if lost_count > FPS * 3:
-                run = False
+                run = False  
             else:
                 continue
 
         if len(enemies) == 0:
             level += 1
-            wave_length += 5
+            wave_length += 1
             for i in range(wave_length):
-                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1500, -100), random.choice(["red", "blue", "green"]))
+                enemy = Enemy(random.randrange(35, WIDTH-100), random.randrange(-1000, -150), random.choice(["red", "blue", "green"]))
                 enemies.append(enemy)
 
         for event in pygame.event.get():
@@ -219,7 +221,7 @@ def main():
             player.y -= player_vel
         if keys[pygame.K_DOWN] and player.y + player_vel + player.get_height() + 15 < HEIGHT:
             player.y += player_vel
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_SPACE] and len(yellow_laser) < MAX_BULLETS:
             player.shoot()
 
         for enemy in enemies[:]:
@@ -234,7 +236,7 @@ def main():
                 enemies.remove(enemy)
             elif enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
-                enemies.random(enemy)
+                enemies.remove(enemy)
 
 
         player.move_lasers(-laser_vel, enemies)
@@ -254,4 +256,4 @@ def main_menu():
                 main()
     pygame.quit()
 
-main()
+main_menu()
